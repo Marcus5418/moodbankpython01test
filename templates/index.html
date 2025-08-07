@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center mb-8">
+    <h1 class="fade-in">Welcome to MoodBank</h1>
+    <p class="fade-in" style="font-size: 1.2rem; max-width: 600px; margin: 0 auto;">
+        Your personal emotional wellness companion. Track your moods, understand your patterns, and discover personalized solutions for emotional challenges.
+    </p>
+</div>
+
+<div class="grid grid-2 mb-8">
+    <div class="glass-card p-8">
+        <div class="text-center">
+            <i class="fas fa-chart-line" style="font-size: 3rem; color: #ffffff; margin-bottom: 20px;"></i>
+            <h3>Track Your Emotions</h3>
+            <p>Log your daily moods and emotions with our intuitive tracking system. Build awareness of your emotional patterns over time.</p>
+            <a href="/track" class="btn btn-primary">Start Tracking</a>
+        </div>
+    </div>
+    
+    <div class="glass-card p-8">
+        <div class="text-center">
+            <i class="fas fa-brain" style="font-size: 3rem; color: #ffffff; margin-bottom: 20px;"></i>
+            <h3>Get Insights</h3>
+            <p>Understand your emotional patterns with detailed analytics and personalized insights based on your mood history.</p>
+            <a href="/insights" class="btn btn-primary">View Insights</a>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-3">
+    <div class="glass-card p-6">
+        <i class="fas fa-lightbulb" style="font-size: 2rem; color: #ffffff; margin-bottom: 16px;"></i>
+        <h3>Personalized Solutions</h3>
+        <p>Receive tailored coping strategies, techniques, and activities based on your specific emotional needs.</p>
+    </div>
+    
+    <div class="glass-card p-6">
+        <i class="fas fa-shield-alt" style="font-size: 2rem; color: #ffffff; margin-bottom: 16px;"></i>
+        <h3>Privacy First</h3>
+        <p>Your emotional data is private and secure. We prioritize your privacy and never share your personal information.</p>
+    </div>
+    
+    <div class="glass-card p-6">
+        <i class="fas fa-clock" style="font-size: 2rem; color: #ffffff; margin-bottom: 16px;"></i>
+        <h3>Daily Check-ins</h3>
+        <p>Build a healthy habit with daily mood check-ins. Track your progress and celebrate your emotional growth.</p>
+    </div>
+</div>
+
+<div class="glass-container p-8 text-center" style="margin-top: 40px;">
+    <h2>Start Your Emotional Wellness Journey</h2>
+    <p style="font-size: 1.1rem; margin-bottom: 24px;">
+        Take the first step towards better emotional health. Track your first mood entry and begin understanding your emotional patterns.
+    </p>
+    <a href="/track" class="btn btn-primary" style="font-size: 1.1rem; padding: 16px 32px;">
+        <i class="fas fa-play"></i>
+        Get Started Now
+    </a>
+</div>
+{% endblock %}

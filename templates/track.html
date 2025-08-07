@@ -1,0 +1,444 @@
+{% extends "base.html" %}
+
+{% block title %}Track Mood - MoodBank{% endblock %}
+
+{% block content %}
+<div class="text-center mb-8">
+    <h1>Track Your Mood</h1>
+    <p style="font-size: 1.1rem;">How are you feeling today? Take a moment to check in with yourself.</p>
+</div>
+
+<div class="grid grid-2">
+    <div class="glass-card p-8">
+        <h2>Current Mood Entry</h2>
+        <form id="moodForm">
+            <div class="form-group">
+                <label class="form-label">Overall Mood</label>
+                <div class="mood-selector">
+                    <div class="mood-options">
+                        <button type="button" class="mood-btn" data-mood="excellent">
+                            <i class="fas fa-grin-stars"></i>
+                            <span>Excellent</span>
+                        </button>
+                        <button type="button" class="mood-btn" data-mood="good">
+                            <i class="fas fa-smile"></i>
+                            <span>Good</span>
+                        </button>
+                        <button type="button" class="mood-btn" data-mood="neutral">
+                            <i class="fas fa-meh"></i>
+                            <span>Neutral</span>
+                        </button>
+                        <button type="button" class="mood-btn" data-mood="low">
+                            <i class="fas fa-frown"></i>
+                            <span>Low</span>
+                        </button>
+                        <button type="button" class="mood-btn" data-mood="poor">
+                            <i class="fas fa-sad-tear"></i>
+                            <span>Poor</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Specific Emotions (Select all that apply)</label>
+                <div class="emotion-grid">
+                    <label class="emotion-checkbox">
+                        <input type="checkbox" value="anxiety">
+                        <span>Anxiety</span>
+                    </label>
+                    <label class="emotion-checkbox">
+                        <input type="checkbox" value="depression">
+                        <span>Depression</span>
+                    </label>
+                    <label class="emotion-checkbox">
+                        <input type="checkbox" value="stress">
+                        <span>Stress</span>
+                    </label>
+                    <label class="emotion-checkbox">
+                        <input type="checkbox" value="anger">
+                        <span>Anger</span>
+                    </label>
+                    <label class="emotion-checkbox">
+                        <input type="checkbox" value="sadness">
+                        <span>Sadness</span>
+                    </label>
+                    <label class="emotion-checkbox">
+                        <input type="checkbox" value="joy">
+                        <span>Joy</span>
+                    </label>
+                    <label class="emotion-checkbox">
+                        <input type="checkbox" value="excitement">
+                        <span>Excitement</span>
+                    </label>
+                    <label class="emotion-checkbox">
+                        <input type="checkbox" value="calm">
+                        <span>Calm</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Intensity Level</label>
+                <div class="intensity-slider">
+                    <input type="range" id="intensity" min="1" max="10" value="5" class="slider">
+                    <div class="intensity-labels">
+                        <span>Low</span>
+                        <span id="intensityValue">5</span>
+                        <span>High</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes (Optional)</label>
+                <textarea class="form-input" rows="4" placeholder="What's on your mind? Any specific triggers or thoughts you'd like to note..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <i class="fas fa-save"></i>
+                Save Mood Entry
+            </button>
+        </form>
+    </div>
+
+    <div class="glass-card p-8">
+        <h2>Recent Entries</h2>
+        <div id="recentEntries">
+            <div class="loading">Loading your recent entries...</div>
+        </div>
+    </div>
+</div>
+
+<style>
+.mood-options {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.mood-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 16px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 80px;
+    backdrop-filter: blur(10px);
+}
+
+.mood-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.mood-btn.selected {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.mood-btn i {
+    font-size: 1.5rem;
+}
+
+.emotion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.emotion-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.emotion-checkbox:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.emotion-checkbox input[type="checkbox"] {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+}
+
+.emotion-checkbox input[type="checkbox"]:checked {
+    background: #ffffff;
+    border-color: #ffffff;
+}
+
+.emotion-checkbox input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: -2px;
+    left: 2px;
+    color: #667eea;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.emotion-checkbox span {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.intensity-slider {
+    margin: 16px 0;
+}
+
+.slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.intensity-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+}
+
+#intensityValue {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.mood-entry {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.mood-entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.mood-entry-mood {
+    font-weight: 600;
+    color: #ffffff;
+    text-transform: capitalize;
+}
+
+.mood-entry-date {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.mood-entry-emotions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.emotion-tag {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.mood-entry-notes {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    font-style: italic;
+}
+
+.loading {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .mood-options {
+        gap: 8px;
+    }
+    
+    .mood-btn {
+        min-width: 60px;
+        padding: 12px 8px;
+    }
+    
+    .emotion-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 8px;
+    }
+}
+</style>
+
+<script>
+let selectedMood = null;
+
+// Mood selection
+document.querySelectorAll('.mood-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+        this.classList.add('selected');
+        selectedMood = this.dataset.mood;
+    });
+});
+
+// Intensity slider
+const intensitySlider = document.getElementById('intensity');
+const intensityValue = document.getElementById('intensityValue');
+
+intensitySlider.addEventListener('input', function() {
+    intensityValue.textContent = this.value;
+});
+
+// Form submission
+document.getElementById('moodForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (!selectedMood) {
+        alert('Please select your overall mood');
+        return;
+    }
+    
+    const emotions = Array.from(document.querySelectorAll('.emotion-checkbox input:checked'))
+        .map(cb => cb.value);
+    
+    const intensity = parseInt(intensitySlider.value);
+    const notes = document.querySelector('textarea').value;
+    
+    const moodData = {
+        mood: selectedMood,
+        emotions: emotions,
+        intensity: intensity,
+        notes: notes
+    };
+    
+    try {
+        const response = await fetch('/api/mood', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(moodData)
+        });
+        
+        if (response.ok) {
+            // Reset form
+            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.emotion-checkbox input').forEach(cb => cb.checked = false);
+            intensitySlider.value = 5;
+            intensityValue.textContent = '5';
+            document.querySelector('textarea').value = '';
+            selectedMood = null;
+            
+            // Show success message
+            alert('Mood entry saved successfully!');
+            
+            // Reload recent entries
+            loadRecentEntries();
+        } else {
+            alert('Error saving mood entry. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error saving mood entry. Please try again.');
+    }
+});
+
+// Load recent entries
+async function loadRecentEntries() {
+    try {
+        const response = await fetch('/api/moods');
+        const entries = await response.json();
+        
+        const container = document.getElementById('recentEntries');
+        
+        if (entries.length === 0) {
+            container.innerHTML = '<div class="loading">No entries yet. Start tracking your mood!</div>';
+            return;
+        }
+        
+        container.innerHTML = entries.slice(0, 5).map(entry => {
+            const date = new Date(entry.timestamp).toLocaleDateString();
+            const time = new Date(entry.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            return `
+                <div class="mood-entry">
+                    <div class="mood-entry-header">
+                        <span class="mood-entry-mood">${entry.mood}</span>
+                        <span class="mood-entry-date">${date} ${time}</span>
+                    </div>
+                    <div class="mood-entry-emotions">
+                        ${entry.emotions.map(emotion => `<span class="emotion-tag">${emotion}</span>`).join('')}
+                    </div>
+                    <div style="color: rgba(255, 255, 255, 0.8); font-size: 12px; margin-bottom: 8px;">
+                        Intensity: ${entry.intensity}/10
+                    </div>
+                    ${entry.notes ? `<div class="mood-entry-notes">"${entry.notes}"</div>` : ''}
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading entries:', error);
+        document.getElementById('recentEntries').innerHTML = '<div class="loading">Error loading entries</div>';
+    }
+}
+
+// Load recent entries on page load
+loadRecentEntries();
+</script>
+{% endblock %}

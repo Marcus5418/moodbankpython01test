@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+
+{% block title %}Insights - MoodBank{% endblock %}
+
+{% block content %}
+<div class="text-center mb-8">
+    <h1>Your Emotional Insights</h1>
+    <p style="font-size: 1.1rem;">Understand your emotional patterns and discover trends in your mood data.</p>
+</div>
+
+<div id="insightsContainer">
+    <div class="loading text-center">
+        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #ffffff; margin-bottom: 16px;"></i>
+        <p>Analyzing your mood patterns...</p>
+    </div>
+</div>
+
+<style>
+.insight-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.insight-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.insight-icon {
+    font-size: 1.5rem;
+    color: #ffffff;
+}
+
+.insight-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+}
+
+.insight-content {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+}
+
+.mood-distribution {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.mood-item {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.mood-count {
+    background: rgba(255, 255, 255, 0.3);
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.emotion-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.emotion-item {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.no-data i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.recommendation-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.recommendation-title {
+    color: #ffffff;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.recommendation-list {
+    list-style: none;
+    padding: 0;
+}
+
+.recommendation-list li {
+    color: rgba(255, 255, 255, 0.9);
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.recommendation-list li:last-child {
+    border-bottom: none;
+}
+
+.recommendation-list li::before {
+    content: '→';
+    color: #ffffff;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.stat-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    display: block;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 4px;
+}
+</style>
+
+<script>
+async function loadInsights() {
+    try {
+        const response = await fetch('/api/insights');
+        const insights = await response.json();
+        
+        const container = document.getElementById('insightsContainer');
+        
+        if (!insights || insights.total_entries === 0) {
+            container.innerHTML = `
+                <div class="glass-card p-8">
+                    <div class="no-data">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>No Data Yet</h3>
+                        <p>Start tracking your moods to see personalized insights and patterns.</p>
+                        <a href="/track" class="btn btn-primary">Track Your First Mood</a>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = `
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">${insights.total_entries}</span>
+                    <div class="stat-label">Total Entries</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">${insights.dominant_mood || 'N/A'}</span>
+                    <div class="stat-label">Dominant Mood</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">${insights.dominant_emotions ? insights.dominant_emotions.length : 0}</span>
+                    <div class="stat-label">Key Emotions</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">7</span>
+                    <div class="stat-label">Days Analyzed</div>
+                </div>
+            </div>
+        `;
+        
+        if (insights.dominant_mood) {
+            html += `
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <i class="fas fa-chart-pie insight-icon"></i>
+                        <h3 class="insight-title">Mood Overview</h3>
+                    </div>
+                    <div class="insight-content">
+                        <p>Your dominant mood over the past week has been <strong>${insights.dominant_mood}</strong>.</p>
+                        <div class="mood-distribution">
+                            ${Object.entries(insights.mood_distribution).map(([mood, count]) => `
+                                <div class="mood-item">
+                                    <span style="text-transform: capitalize;">${mood}</span>
+                                    <span class="mood-count">${count}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (insights.dominant_emotions && insights.dominant_emotions.length > 0) {
+            html += `
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <i class="fas fa-heart insight-icon"></i>
+                        <h3 class="insight-title">Emotional Patterns</h3>
+                    </div>
+                    <div class="insight-content">
+                        <p>Your most frequent emotions have been:</p>
+                        <div class="emotion-list">
+                            ${insights.dominant_emotions.map(emotion => `
+                                <div class="emotion-item">${emotion}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Get personalized recommendations
+            const solutionsResponse = await fetch(`/api/solutions/${insights.dominant_emotions.join(',')}`);
+            const solutions = await solutionsResponse.json();
+            
+            if (solutions.techniques && solutions.techniques.length > 0) {
+                html += `
+                    <div class="recommendation-card">
+                        <div class="recommendation-title">
+                            <i class="fas fa-lightbulb"></i>
+                            Personalized Recommendations
+                        </div>
+                        <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 16px;">
+                            Based on your emotional patterns, here are some techniques that might help:
+                        </p>
+                        <ul class="recommendation-list">
+                            ${solutions.techniques.slice(0, 3).map(technique => `
+                                <li>${technique}</li>
+                            `).join('')}
+                        </ul>
+                        <div style="margin-top: 16px;">
+                            <a href="/solutions" class="btn btn-primary">
+                                <i class="fas fa-arrow-right"></i>
+                                View All Solutions
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Add general insights
+        html += `
+            <div class="insight-card">
+                <div class="insight-header">
+                    <i class="fas fa-brain insight-icon"></i>
+                    <h3 class="insight-title">Insights & Tips</h3>
+                </div>
+                <div class="insight-content">
+                    <ul class="recommendation-list">
+                        <li>Tracking your emotions regularly helps build self-awareness</li>
+                        <li>Look for patterns in your mood changes throughout the week</li>
+                        <li>Consider external factors that might influence your emotional state</li>
+                        <li>Celebrate positive mood trends and progress</li>
+                    </ul>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+        
+    } catch (error) {
+        console.error('Error loading insights:', error);
+        document.getElementById('insightsContainer').innerHTML = `
+            <div class="glass-card p-8">
+                <div class="no-data">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Error Loading Insights</h3>
+                    <p>There was an error loading your insights. Please try again later.</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Load insights on page load
+loadInsights();
+</script>
+{% endblock %}
